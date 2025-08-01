@@ -22,6 +22,9 @@ O Amazon Comprehend é um serviço que processa NLP e extrai algumas informaçõ
 
 ## 🛠 Desenvolvimento
 
+<img width="856" height="677" alt="image" src="https://github.com/user-attachments/assets/efde24b5-e64f-42b9-94cf-244ae4e8b590" />
+
+
 O exemplo deste repositório implementa o seguinte fluxo:
 
 ### 1. **Uma aplicação frontend implementada em Nextjs**.
