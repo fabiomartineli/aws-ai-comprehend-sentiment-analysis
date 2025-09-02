@@ -54,6 +54,7 @@ namespace Infra.Data.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        // The query can be improved. This is just an example.
         public async Task<IEnumerable<ProductReviewSummaryByProductDto>> SummaryByProductAsync(CancellationToken cancellationToken)
         {
             var topNegative = await _databaseContext.Set<ProductReview>()
