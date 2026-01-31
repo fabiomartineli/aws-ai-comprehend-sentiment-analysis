@@ -15,7 +15,12 @@ namespace Infra.Data
             {
                 opt.UseNpgsql(configuration.GetConnectionString("Postgres"));
                 opt.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                opt.EnableDetailedErrors();
+                // Only enable detailed errors in development environment
+                var enableDetailedErrors = configuration["EnableDetailedErrors"];
+                if (!string.IsNullOrEmpty(enableDetailedErrors) && bool.Parse(enableDetailedErrors))
+                {
+                    opt.EnableDetailedErrors();
+                }
             });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
