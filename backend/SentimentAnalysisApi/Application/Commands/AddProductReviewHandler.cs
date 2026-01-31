@@ -23,23 +23,32 @@ namespace Application.Commands
 
         public async Task<bool> ExecuteAsync(AddProductReviewCommand command, CancellationToken cancellationToken)
         {
-            var review = new Domain.Entities.ProductReview
+            try
             {
-                Id = Guid.CreateVersion7(),
-                Comment = command.Comment,
-                ProductName = command.ProductName,
-            };
+                var review = new Domain.Entities.ProductReview
+                {
+                    Id = Guid.CreateVersion7(),
+                    Comment = command.Comment,
+                    ProductName = command.ProductName,
+                    UserName = command.UserName,
+                };
 
-            await _unitOfWork.StartTransactionAsync(cancellationToken);
-            await _productReviewRepository.AddAsync(review, cancellationToken);
-            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+                await _unitOfWork.StartTransactionAsync(cancellationToken);
+                await _productReviewRepository.AddAsync(review, cancellationToken);
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
-            await _eventHandler.ExecuteAsync(new ProductReviewedEvent
+                await _eventHandler.ExecuteAsync(new ProductReviewedEvent
+                {
+                    Review = review,
+                }, cancellationToken);
+
+                return true;
+            }
+            catch (Exception)
             {
-                Review = review,
-            }, cancellationToken);
-
-            return true;
+                // Transaction rollback is handled in UnitOfWork
+                throw;
+            }
         }
     }
 }

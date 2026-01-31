@@ -1,6 +1,6 @@
 ﻿namespace Domain.Types
 {
-    public enum ProducteReviewSentimentType
+    public enum ProductReviewSentimentType
     {
         NotIdentified = 0,
         Neutral,

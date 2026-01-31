@@ -17,16 +17,28 @@ namespace Api.Controllers
             [FromServices] ICommandHandler<AddProductReviewCommand, bool> handler,
             CancellationToken cancellationToken)
         {
-            var command = new AddProductReviewCommand
+            if (!ModelState.IsValid)
             {
-                Comment = request.Comment,
-                ProductName = request.ProductName,
-                UserName = request.UserName
-            };
+                return BadRequest(ModelState);
+            }
 
-            await handler.ExecuteAsync(command, cancellationToken);
+            try
+            {
+                var command = new AddProductReviewCommand
+                {
+                    Comment = request.Comment,
+                    ProductName = request.ProductName,
+                    UserName = request.UserName
+                };
 
-            return Ok();
+                await handler.ExecuteAsync(command, cancellationToken);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while processing your request", details = ex.Message });
+            }
         }
 
 
@@ -35,23 +47,37 @@ namespace Api.Controllers
             [FromServices] IQueryHandler<GetProductsReviewByNameQuery, IEnumerable<GetProductsReviewByNameQueryResponse>> handler,
             CancellationToken cancellationToken)
         {
-            var command = new GetProductsReviewByNameQuery
+            try
             {
-                ProductName = productName,
-            };
+                var command = new GetProductsReviewByNameQuery
+                {
+                    ProductName = productName,
+                };
 
-            var result = await handler.ExecuteAsync(command, cancellationToken);
+                var result = await handler.ExecuteAsync(command, cancellationToken);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving reviews", details = ex.Message });
+            }
         }
 
         [HttpGet("/products:review-summary")]
         public async Task<IActionResult> ReviewSummary([FromServices] IQueryHandler<GetProductsReviewSummaryQuery, GetProductsReviewSummaryQueryResponse> handler,
            CancellationToken cancellationToken)
         {
-            var result = await handler.ExecuteAsync(new(), cancellationToken);
+            try
+            {
+                var result = await handler.ExecuteAsync(new(), cancellationToken);
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while retrieving summary", details = ex.Message });
+            }
         }
     }
 }

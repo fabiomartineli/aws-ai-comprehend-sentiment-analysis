@@ -20,27 +20,27 @@ namespace Application.Queries
             var sentimentSummary = await _repository.SummaryBySentimentAsync(cancellationToken);
             var productsSummary = await _repository.SummaryByProductAsync(cancellationToken);
 
-            ProducteReviewSentimentType[] neutralSentiments = [ProducteReviewSentimentType.Neutral, ProducteReviewSentimentType.Mixed];
+            ProductReviewSentimentType[] neutralSentiments = [ProductReviewSentimentType.Neutral, ProductReviewSentimentType.Mixed];
 
             return new()
             {
                 Sentiment = new()
                 {
-                    TotalNegativeSentiment = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProducteReviewSentimentType.Negative)?.Count ?? 0,
-                    TotalPositiveSentiment = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProducteReviewSentimentType.Positive)?.Count ?? 0,
-                    TotalInProcessing = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProducteReviewSentimentType.NotIdentified)?.Count ?? 0,
+                    TotalNegativeSentiment = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProductReviewSentimentType.Negative)?.Count ?? 0,
+                    TotalPositiveSentiment = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProductReviewSentimentType.Positive)?.Count ?? 0,
+                    TotalInProcessing = sentimentSummary.FirstOrDefault(x => x.Sentiment == ProductReviewSentimentType.NotIdentified)?.Count ?? 0,
                     TotalNeutralSentiment = sentimentSummary.FirstOrDefault(x => neutralSentiments.Contains(x.Sentiment))?.Count ?? 0,
                     Total = sentimentSummary.Sum(x => x.Count)
                 },
                 TopNegativeProducts = productsSummary
-                        .Where(x => x.Sentiment == ProducteReviewSentimentType.Negative)
+                        .Where(x => x.Sentiment == ProductReviewSentimentType.Negative)
                         .Select(x => new GetProductsReviewSummaryProductResponse() 
                         {
                             ProductName = x.ProductName,
                             Count = x.Count,
                         }),
                 TopPositiveProducts = productsSummary
-                        .Where(x => x.Sentiment == ProducteReviewSentimentType.Positive)
+                        .Where(x => x.Sentiment == ProductReviewSentimentType.Positive)
                         .Select(x => new GetProductsReviewSummaryProductResponse()
                         {
                             ProductName = x.ProductName,

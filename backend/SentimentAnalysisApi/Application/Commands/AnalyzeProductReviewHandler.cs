@@ -27,6 +27,12 @@ namespace Application.Commands
         public async Task<bool> ExecuteAsync(AnalyzeProductReviewCommand command, CancellationToken cancellationToken)
         {
             var review = await _productReviewRepository.FindAsync(command.Review.Id, cancellationToken);
+            
+            if (review == null)
+            {
+                throw new InvalidOperationException($"Product review with ID {command.Review.Id} not found");
+            }
+
             var sentiment = await _sentimentAnalysisService.ExecuteAsync(command.Review.Comment, cancellationToken);
             
             review.Sentiment = GetDomainType(sentiment);
@@ -44,15 +50,15 @@ namespace Application.Commands
             return true;
         }
 
-        private static ProducteReviewSentimentType GetDomainType(SentimentAnalysisType sentimentAnalysisType)
+        private static ProductReviewSentimentType GetDomainType(SentimentAnalysisType sentimentAnalysisType)
             => sentimentAnalysisType switch 
             {
-                SentimentAnalysisType.NotIdentified => ProducteReviewSentimentType.NotIdentified,
-                SentimentAnalysisType.Neutral => ProducteReviewSentimentType.Neutral,
-                SentimentAnalysisType.Positive => ProducteReviewSentimentType.Positive,
-                SentimentAnalysisType.Negative => ProducteReviewSentimentType.Negative,
-                SentimentAnalysisType.Mixed => ProducteReviewSentimentType.Mixed,
-                _ => ProducteReviewSentimentType.NotIdentified
+                SentimentAnalysisType.NotIdentified => ProductReviewSentimentType.NotIdentified,
+                SentimentAnalysisType.Neutral => ProductReviewSentimentType.Neutral,
+                SentimentAnalysisType.Positive => ProductReviewSentimentType.Positive,
+                SentimentAnalysisType.Negative => ProductReviewSentimentType.Negative,
+                SentimentAnalysisType.Mixed => ProductReviewSentimentType.Mixed,
+                _ => ProductReviewSentimentType.NotIdentified
             };
     }
 }

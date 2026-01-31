@@ -54,33 +54,42 @@ namespace Infra.Data.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        // The query can be improved. This is just an example.
+        // Optimized query that retrieves top 3 positive and negative products in a single database call
         public async Task<IEnumerable<ProductReviewSummaryByProductDto>> SummaryByProductAsync(CancellationToken cancellationToken)
         {
-            var topNegative = await _databaseContext.Set<ProductReview>()
-                    .Where(x => x.Sentiment == Domain.Types.ProducteReviewSentimentType.Negative)
-                    .GroupBy(x => new { x.ProductName, x.Sentiment })
-                    .OrderByDescending(x => x.Count())
-                    .Take(3)
-                    .Select(x => new ProductReviewSummaryByProductDto
-                    {
-                        ProductName = x.Key.ProductName,
-                        Sentiment = x.Key.Sentiment,
-                        Count = x.Count()
-                    })
-                    .ToListAsync(cancellationToken);
-            var topPositive= await _databaseContext.Set<ProductReview>()
-                   .Where(x => x.Sentiment == Domain.Types.ProducteReviewSentimentType.Positive)
-                   .GroupBy(x => new { x.ProductName, x.Sentiment })
-                   .OrderByDescending(x => x.Count())
-                   .Take(3)
-                   .Select(x => new ProductReviewSummaryByProductDto
-                   {
-                       ProductName = x.Key.ProductName,
-                       Sentiment = x.Key.Sentiment,
-                       Count = x.Count()
-                   })
-                   .ToListAsync(cancellationToken);
+            var results = await _databaseContext.Set<ProductReview>()
+                .Where(x => x.Sentiment == Domain.Types.ProductReviewSentimentType.Negative || 
+                           x.Sentiment == Domain.Types.ProductReviewSentimentType.Positive)
+                .GroupBy(x => new { x.ProductName, x.Sentiment })
+                .Select(x => new 
+                {
+                    x.Key.ProductName,
+                    x.Key.Sentiment,
+                    Count = x.Count()
+                })
+                .ToListAsync(cancellationToken);
+
+            var topNegative = results
+                .Where(x => x.Sentiment == Domain.Types.ProductReviewSentimentType.Negative)
+                .OrderByDescending(x => x.Count)
+                .Take(3)
+                .Select(x => new ProductReviewSummaryByProductDto
+                {
+                    ProductName = x.ProductName,
+                    Sentiment = x.Sentiment,
+                    Count = x.Count
+                });
+
+            var topPositive = results
+                .Where(x => x.Sentiment == Domain.Types.ProductReviewSentimentType.Positive)
+                .OrderByDescending(x => x.Count)
+                .Take(3)
+                .Select(x => new ProductReviewSummaryByProductDto
+                {
+                    ProductName = x.ProductName,
+                    Sentiment = x.Sentiment,
+                    Count = x.Count
+                });
 
             return [.. topNegative, .. topPositive];
         }

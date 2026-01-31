@@ -18,7 +18,15 @@ builder.Services.AddIoCMessageBus(builder.Configuration);
 builder.Services.AddIoCAi(builder.Configuration);
 builder.Services.AddIoCApplication(builder.Configuration);
 builder.Services.AddScoped<IClientNotificationService, ClientNotificationService>();
-builder.Services.AddCors(op => op.AddDefaultPolicy(config => config.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
+builder.Services.AddCors(op => op.AddDefaultPolicy(config => 
+{
+    var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() 
+                         ?? new[] { "http://localhost:3000", "http://localhost:80" };
+    config.WithOrigins(allowedOrigins)
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials();
+}));
 builder.Services.AddHostedService<AnalyzeProductReviewConsumer>();
 
 var app = builder.Build();

@@ -13,13 +13,13 @@ namespace Infra.Data.Mappings
             builder.HasKey(x => x.Id);
             builder.HasIndex(x => x.ProductName);
             builder.HasIndex(x => new { x.UserName, x.ProductName }).IsUnique();
-            builder.Property(x => x.UserName).HasColumnName("user_name");
-            builder.Property(x => x.ProductName).HasColumnName("product_name");
-            builder.Property(x => x.Comment).HasColumnName("comment");
+            builder.Property(x => x.UserName).HasColumnName("user_name").IsRequired().HasMaxLength(100);
+            builder.Property(x => x.ProductName).HasColumnName("product_name").IsRequired().HasMaxLength(200);
+            builder.Property(x => x.Comment).HasColumnName("comment").IsRequired().HasMaxLength(5000);
             builder.Property(x => x.Sentiment)
                 .HasColumnName("sentiment")
                 .HasConversion(valueFromCode => valueFromCode.ToString(),
-                                valueFromDataBase => Enum.Parse<ProducteReviewSentimentType>(valueFromDataBase));
+                                valueFromDataBase => Enum.Parse<ProductReviewSentimentType>(valueFromDataBase));
         }
     }
 }

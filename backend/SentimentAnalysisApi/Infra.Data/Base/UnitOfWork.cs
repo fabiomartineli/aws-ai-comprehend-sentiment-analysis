@@ -21,11 +21,21 @@ namespace Infra.Data.Base
 
         public async Task CommitTransactionAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync(cancellationToken);
-            await _transcation.CommitAsync(cancellationToken);
-
-            await _transcation.DisposeAsync();
-            _transcation = null;
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+                await _transcation.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await _transcation.RollbackAsync(cancellationToken);
+                throw;
+            }
+            finally
+            {
+                await _transcation.DisposeAsync();
+                _transcation = null;
+            }
         }
     }
 }
